@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blood Donor Registration</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #fff1f1;
+            margin: 0;
+        }
+        header {
+            background: #c62828;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+        .container {
+            background: white;
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px #ccc;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 9px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background: #c62828;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        h2 { color: #c62828; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Blood Donor Registration</h1>
+    <p>Donate Blood, Save Lives</p>
+</header>
+
+<div class="container">
+    <h2>Register as a Donor</h2>
+
+    <form id="donorForm">
+        <input id="name" placeholder="Full Name" required>
+
+        <input id="age" type="number"
+               placeholder="Age (18 or above)"
+               min="18" max="65" required>
+
+        <select id="blood" required>
+            <option value="">Select Blood Group</option>
+            <option>A+</option>
+            <option>A-</option>
+            <option>B+</option>
+            <option>B-</option>
+            <option>O+</option>
+            <option>O-</option>
+            <option>AB+</option>
+            <option>AB-</option>
+        </select>
+
+        <input id="phone" type="tel"
+               placeholder="Mobile Number"
+               pattern="[0-9]{10}" required>
+
+        <input id="city" placeholder="City / Location" required>
+
+        <button type="submit">Register as Donor</button>
+    </form>
+
+    <p id="message"></p>
+    <a href="index.html">Back to Home</a>
+</div>
+
+<script>
+document.getElementById("donorForm")
+.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    let donor = {
+        name: document.getElementById("name").value,
+        age: document.getElementById("age").value,
+        blood: document.getElementById("blood").value,
+        phone: document.getElementById("phone").value,
+        city: document.getElementById("city").value
+    };
+
+    let donors = JSON.parse(
+        localStorage.getItem("donors") || "[]"
+    );
+
+    donors.push(donor);
+
+    localStorage.setItem("donors",
+                         JSON.stringify(donors));
+
+    document.getElementById("message").innerHTML =
+        "Registration successful! Thank you for donating.";
+
+    document.getElementById("donorForm").reset();
+});
+</script>
+
+</body>
+</html>
+
