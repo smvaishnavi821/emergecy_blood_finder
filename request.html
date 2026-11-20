@@ -1,14 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Find Blood - Emergency Blood Finder</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #fff1f1;
+            margin: 0;
+        }
+
+        header {
+            background: #c62828;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        .container {
+            background: white;
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px #ccc;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 9px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #c62828;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        h2 { color: #c62828; }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Blood Finder Registration</h1>
+    <p>Find Blood During Emergencies</p>
+</header>
+
+<div class="container">
+    <h2>Request Blood</h2>
+
+    <form id="requestForm">
+
+        <input id="patient" placeholder="Patient Name" required>
+
+        <input id="age" type="number"
+               placeholder="Patient Age" min="0" required>
+
+        <select id="blood" required>
+            <option value="">Select Required Blood Group</option>
+            <option>A+</option>
+            <option>A-</option>
+            <option>B+</option>
+            <option>B-</option>
+            <option>O+</option>
+            <option>O-</option>
+            <option>AB+</option>
+            <option>AB-</option>
+        </select>
+
+        <input id="units" type="number"
+               placeholder="Units Required" min="1" required>
+
+        <input id="hospital" placeholder="Hospital Name" required>
+
+        <input id="city" placeholder="City / Location" required>
+
+        <input id="phone" type="tel"
+               placeholder="Contact Number"
+               pattern="[0-9]{10}" required>
+
+        <select id="urgency" required>
+            <option value="">Select Urgency</option>
+            <option>Emergency</option>
+            <option>Within 24 Hours</option>
+            <option>Normal</option>
+        </select>
+
+        <button type="submit">Submit Blood Request</button>
+    </form>
+
+    <p id="message"></p>
+    <a href="index.html">Back to Home</a>
+</div>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 
 import {
     getFirestore,
     collection,
     addDoc,
     serverTimestamp
-} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+} from
+"https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
-// Copy your actual Firebase configuration from donor.html
+// Replace these values with your actual Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyBAu-HsXwy5IXed2D0Pos44etSuMK4j0-E",
     authDomain: "emergency-blood-finder-system.firebaseapp.com",
@@ -23,16 +126,17 @@ const db = getFirestore(app);
 
 document.getElementById("requestForm")
 .addEventListener("submit", async function(event) {
+
     event.preventDefault();
 
     const request = {
-        patient: document.getElementById("patient").value,
+        patient: document.getElementById("patient").value.trim(),
         age: Number(document.getElementById("age").value),
         blood: document.getElementById("blood").value,
         units: Number(document.getElementById("units").value),
-        hospital: document.getElementById("hospital").value,
-        city: document.getElementById("city").value,
-        phone: document.getElementById("phone").value,
+        hospital: document.getElementById("hospital").value.trim(),
+        city: document.getElementById("city").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
         urgency: document.getElementById("urgency").value,
         createdAt: serverTimestamp()
     };
@@ -43,15 +147,19 @@ document.getElementById("requestForm")
         await addDoc(collection(db, "requests"), request);
 
         message.textContent =
-            "Your blood request has been submitted successfully!";
+        "Blood request submitted successfully!";
 
         document.getElementById("requestForm").reset();
 
     } catch (error) {
-        console.error("Error:", error);
+        console.error(error);
+
         message.textContent =
-            "Request failed. Please try again.";
+        "Request failed: " + error.message;
     }
 });
+
 </script>
 
+</body>
+</html>
