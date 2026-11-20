@@ -1,130 +1,57 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Find Blood - Emergency Blood Finder</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #fff1f1;
-            margin: 0;
-        }
-        header {
-            background: #c62828;
-            color: white;
-            text-align: center;
-            padding: 25px;
-        }
-        .container {
-            background: white;
-            max-width: 500px;
-            margin: 30px auto;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px #ccc;
-        }
-        input, select, textarea, button {
-            width: 100%;
-            padding: 12px;
-            margin: 9px 0;
-            box-sizing: border-box;
-        }
-        button {
-            background: #c62828;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 6px;
-        }
-        h2 { color: #c62828; }
-    </style>
-</head>
-<body>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 
-<header>
-    <h1>Blood Finder Registration</h1>
-    <p>Find Blood During Emergencies</p>
-</header>
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
-<div class="container">
-    <h2>Request Blood</h2>
+// Copy your actual Firebase configuration from donor.html
+const firebaseConfig = {
+    apiKey: "PASTE_YOUR_REAL_API_KEY",
+    authDomain: "PASTE_YOUR_AUTH_DOMAIN",
+    projectId: "PASTE_YOUR_PROJECT_ID",
+    storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
+    messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+    appId: "PASTE_YOUR_APP_ID"
+};
 
-    <form id="requestForm">
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-        <input id="patient" placeholder="Patient Name" required>
-
-        <input id="age" type="number"
-               placeholder="Patient Age" min="0" required>
-
-        <select id="blood" required>
-            <option value="">Select Required Blood Group</option>
-            <option>A+</option>
-            <option>A-</option>
-            <option>B+</option>
-            <option>B-</option>
-            <option>O+</option>
-            <option>O-</option>
-            <option>AB+</option>
-            <option>AB-</option>
-        </select>
-
-        <input id="units" type="number"
-               placeholder="Units Required" min="1" required>
-
-        <input id="hospital" placeholder="Hospital Name" required>
-
-        <input id="city" placeholder="City / Location" required>
-
-        <input id="phone" type="tel"
-               placeholder="Contact Number"
-               pattern="[0-9]{10}" required>
-
-        <select id="urgency" required>
-            <option value="">Select Urgency</option>
-            <option>Emergency</option>
-            <option>Within 24 Hours</option>
-            <option>Normal</option>
-        </select>
-
-        <button type="submit">Submit Blood Request</button>
-    </form>
-
-    <p id="message"></p>
-    <a href="index.html">Back to Home</a>
-</div>
-
-<script>
 document.getElementById("requestForm")
-.addEventListener("submit", function(event) {
-
+.addEventListener("submit", async function(event) {
     event.preventDefault();
 
-    let request = {
+    const request = {
         patient: document.getElementById("patient").value,
-        age: document.getElementById("age").value,
+        age: Number(document.getElementById("age").value),
         blood: document.getElementById("blood").value,
-        units: document.getElementById("units").value,
+        units: Number(document.getElementById("units").value),
         hospital: document.getElementById("hospital").value,
         city: document.getElementById("city").value,
         phone: document.getElementById("phone").value,
-        urgency: document.getElementById("urgency").value
+        urgency: document.getElementById("urgency").value,
+        createdAt: serverTimestamp()
     };
 
-    let requests = JSON.parse(
-        localStorage.getItem("requests") || "[]"
-    );
+    const message = document.getElementById("message");
 
-    requests.push(request);
+    try {
+        await addDoc(collection(db, "requests"), request);
 
-    localStorage.setItem("requests",
-                         JSON.stringify(requests));
+        message.textContent =
+            "Your blood request has been submitted successfully!";
 
-    document.getElementById("message").innerHTML =
-        "Your blood request has been submitted successfully!";
+        document.getElementById("requestForm").reset();
 
-    document.getElementById("requestForm").reset();
+    } catch (error) {
+        console.error("Error:", error);
+        message.textContent =
+            "Request failed. Please try again.";
+    }
 });
 </script>
-
-</body>
-</html>
 
