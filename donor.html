@@ -22,7 +22,7 @@
             border-radius: 12px;
             box-shadow: 0 0 10px #ccc;
         }
-        input, select, button {
+        input:not([type="checkbox"]), select, button {
             width: 100%;
             padding: 12px;
             margin: 9px 0;
@@ -36,6 +36,10 @@
             border-radius: 6px;
         }
         h2 { color: #c62828; }
+        .consent {
+            display: block;
+            margin: 12px 0;
+        }
     </style>
 </head>
 <body>
@@ -73,43 +77,97 @@
 
         <input id="city" placeholder="City / Location" required>
 
-        <button type="submit">Register as Donor</button>
+        <p><b>Notification Permission</b></p>
+
+        <label class="consent">
+            <input type="checkbox" id="sms">
+            I agree to receive blood request SMS.
+        </label>
+
+        <label class="consent">
+            <input type="checkbox" id="whatsapp">
+            I agree to receive blood request WhatsApp messages.
+        </label>
+
+        <button type="submit" id="submitBtn">
+            Register as Donor
+        </button>
     </form>
 
     <p id="message"></p>
     <a href="index.html">Back to Home</a>
 </div>
 
-<script>
-document.getElementById("donorForm")
-.addEventListener("submit", function(event) {
+<script type="module">
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+// REPLACE THIS OBJECT WITH YOUR COPIED FIREBASE CONFIG
+const firebaseConfig = {
+    apiKey: "PASTE_YOUR_API_KEY",
+    authDomain: "PASTE_YOUR_AUTH_DOMAIN",
+    projectId: "PASTE_YOUR_PROJECT_ID",
+    storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
+    messagingSenderId: "PASTE_YOUR_SENDER_ID",
+    appId: "PASTE_YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const form = document.getElementById("donorForm");
+const message = document.getElementById("message");
+const submitBtn = document.getElementById("submitBtn");
+
+form.addEventListener("submit", async function(event) {
     event.preventDefault();
 
-    let donor = {
-        name: document.getElementById("name").value,
-        age: document.getElementById("age").value,
+    const donor = {
+        name: document.getElementById("name").value.trim(),
+        age: Number(document.getElementById("age").value),
         blood: document.getElementById("blood").value,
-        phone: document.getElementById("phone").value,
-        city: document.getElementById("city").value
+        phone: document.getElementById("phone").value.trim(),
+        city: document.getElementById("city").value.trim(),
+        smsConsent: document.getElementById("sms").checked,
+        whatsappConsent: document.getElementById("whatsapp").checked,
+        createdAt: serverTimestamp()
     };
 
-    let donors = JSON.parse(
-        localStorage.getItem("donors") || "[]"
-    );
+    if (!donor.smsConsent && !donor.whatsappConsent) {
+        message.textContent =
+            "Please select at least one notification permission.";
+        return;
+    }
 
-    donors.push(donor);
+    submitBtn.disabled = true;
+    message.textContent = "Registering...";
 
-    localStorage.setItem("donors",
-                         JSON.stringify(donors));
+    try {
+        await addDoc(collection(db, "donors"), donor);
 
-    document.getElementById("message").innerHTML =
-        "Registration successful! Thank you for donating.";
+        message.textContent =
+            "Registration successful! Thank you for donating.";
 
-    document.getElementById("donorForm").reset();
+        form.reset();
+
+    } catch (error) {
+        console.error(error);
+        message.textContent =
+            "Registration failed: " + error.message;
+    } finally {
+        submitBtn.disabled = false;
+    }
 });
 </script>
 
 </body>
 </html>
+
 
